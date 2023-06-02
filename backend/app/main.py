@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
 
-from auth.database import User, create_db_and_tables
+from auth.database import User
 from auth.schemas import UserCreate, UserRead, UserUpdate
 from auth.auth import auth_backend, current_active_user, fastapi_users
 
@@ -34,9 +34,3 @@ app.include_router(
 @app.get("/authenticated-route")
 async def authenticated_route(user: User = Depends(current_active_user)):
     return {"message": f"Hello {user.email}!"}
-
-
-@app.on_event("startup")
-async def on_startup():
-    # Not needed if you setup a migration system like Alembic
-    await create_db_and_tables()
