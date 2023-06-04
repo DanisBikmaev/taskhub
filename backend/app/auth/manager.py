@@ -1,17 +1,14 @@
-import uuid
 from typing import Optional
-
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, UUIDIDMixin
+from fastapi_users import BaseUserManager, IntegerIDMixin
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from auth.utils import get_user_db
+from config import SECRET_AUTH
+from auth.models import User
 
-from auth.database import User, get_user_db
-
-SECRET = "SECRET"
-
-
-class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
+    reset_password_token_secret = SECRET_AUTH
+    verification_token_secret = SECRET_AUTH
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
@@ -24,8 +21,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
+        print(
+            f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db=Depends(get_user_db)):
+async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
