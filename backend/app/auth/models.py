@@ -5,8 +5,8 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Integer, ForeignKey, TIMESTAMP
 from datetime import datetime
-from databse import Base
 
+from database import Base
 
 metadata = MetaData()
 
