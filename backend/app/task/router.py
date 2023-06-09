@@ -1,33 +1,33 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, insert
 from database import get_async_session
-from pydantic.types import List
-from task.models import task
-from task.schemas import TaskCreate, TaskRead
+from sqlalchemy import select, insert
+from task.models import Task
+from task.scemas import TaskCreate
 
 router = APIRouter(
     prefix='/task',
-    tags=['tasks']
+    tags=['Task']
 )
 
 
-@router.get('/', response_model=List[TaskRead])
-async def get_all_tasks(session: AsyncSession = Depends(get_async_session)):
-    query = select(task)
+@router.post('')
+async def create_task(new_task: TaskCreate, session: AsyncSession = Depends(get_async_session)):
+    stmt = insert(Task).values(**new_task.__dict__)
+    await session.execute(stmt)
+    await session.commit()
+    print(new_task.__dict__)
+    return {"status": "success"}
+
+
+@router.get('')
+async def get_tasks(session: AsyncSession = Depends(get_async_session)):
+    query = select(Task)
     result = await session.execute(query)
     return result.all()
 
-@router.get('/{task_id}', response_model=TaskRead)
-async def get_task_by_id(task_id: int, session: AsyncSession=Depends(get_async_session)):
-    query = select(task).where(task.c.id == task_id)
+@router.get('/{id}')
+async def get_task_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
+    query = select(Task).where(Task.id == id)
     result = await session.execute(query)
     return result.first()
-
-@router.post('/')
-async def create_task(new_task: TaskCreate ,session: AsyncSession = Depends(get_async_session)):
-    stmt = insert(task).values(**new_task.dict())
-    result = await session.execute(stmt)
-    await session.commit()
-    return {"status": "success"}
-    

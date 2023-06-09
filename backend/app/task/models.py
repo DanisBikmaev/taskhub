@@ -1,13 +1,12 @@
-from sqlalchemy import MetaData, Table, Column, Integer, String, TIMESTAMP
+from sqlalchemy import Integer, String, TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+from database import Base
 
-metadata = MetaData()
-
-task = Table(
-    "task",
-    metadata, 
-    Column("id", Integer, primary_key=True),
-    Column("head", String),
-    Column("body", String),
-    Column("created_at", TIMESTAMP, default=datetime.utcnow)
-)
+class Task(Base):
+    __tablename__ = 'task'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    head: Mapped[str] = mapped_column(String, nullable=False)
+    body: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(TIMESTAMP, default=datetime.utcnow)
+    
